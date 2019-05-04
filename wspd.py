@@ -50,11 +50,10 @@ def get_split_tree(pts):
     if len(pts) > 1:
         widths = pts.ptp(axis=0)
         max_i = np.argmax(widths)
-        split = widths[:, max_i] / 2 + pts[:, max_i].min()
-        node.left = get_split_tree(pts[np.ravel(pts[:, max_i] <= split)])
-        node.right = get_split_tree(pts[np.ravel(pts[:, max_i] > split)])
-        assert 0 < len(node.left.data) < len(pts)
-        assert 0 < len(node.right.data) < len(pts)
+        split = widths[max_i] / 2 + pts[:,max_i].min()
+
+        node.left = get_split_tree(pts[pts[:,max_i] <= split])
+        node.right = get_split_tree(pts[pts[:,max_i] > split])
 
     return node
 
@@ -78,12 +77,8 @@ def find_pairs(child_left, child_right, s, all_points, depth=0):
 
     if dist > min_dist:
         pairs += [sets]
-        print("-"*depth+f"{get_set_repr(sets[0], all_points)} <- {dist:.2f} -> {get_set_repr(sets[1], all_points)} YES!"
-              f" (r={r[max_i]:.2f} => {min_dist:.2f})")
     else:
         # split set with higher radius
-        print("-"*depth+f"{get_set_repr(sets[0], all_points)} <- {dist:.2f} -> {get_set_repr(sets[1], all_points)} NO split!"
-              f" (r={r[max_i]:.2f} => {min_dist:.2f})")
         pairs += find_pairs(children[max_i].left, children[1 - max_i], s, all_points, depth=depth+1)
         pairs += find_pairs(children[max_i].right, children[1 - max_i], s, all_points, depth=depth+1)
 
